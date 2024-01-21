@@ -92,8 +92,56 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # TODO
-    raise NotImplementedError
+    # create a blank QueueFrontier (for BFS) and an empty set
+    frontier: QueueFrontier = QueueFrontier()
+    explored: set = set()
+
+    # Add root node of the source, we use nodes
+    # to traverse parents for building a path
+    frontier.add(
+        Node(source, None, None)
+    )
+
+    # Search Loop
+    while True:
+        if frontier.empty():
+            return None  # Not found
+
+        # Dequeue next node to expore
+        current: Node = frontier.remove()
+
+        # check if we have found the target
+        if current.state == target:
+            # rebuild the path
+            path = []
+
+            while current.parent is not None:
+                # append (MOVIE_ID, PERSON_ID) tuple from left (no need to reverse when finished)
+                path.insert(0, (current.action, current.state))
+                current = current.parent
+
+            return path
+
+        # if not found, mark current as explored and register it's successors
+        explored.add(current.state)
+
+        for neighbor_movie_id, neighbor_id in neighbors_for_person(current.state):
+            # For optimization, we catch the target directly here and doing the same
+            # job as we done above on building the path
+            if neighbor_id == target:
+                current = Node(neighbor_id, current, neighbor_movie_id)
+                path = []
+
+                while current.parent is not None:
+                    path.insert(0, (current.action, current.state))
+                    current = current.parent
+
+                return path
+
+            # If the neighbor is non-explored or pending in a frontier, discard it.
+            if (not frontier.contains_state(neighbor_id)) and (neighbor_id not in explored):
+                successor = Node(neighbor_id, current, neighbor_movie_id)
+                frontier.add(successor)
 
 
 def person_id_for_name(name):
