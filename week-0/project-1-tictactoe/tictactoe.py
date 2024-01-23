@@ -1,5 +1,5 @@
 """
-Tic Tac Toe Player from Project 1: Tic-Tac-Toe (CS50AI)
+Tic Tac Toe Player (CS50 AI Week 0, Project 1)
 Python Version: 3.10
 """
 
@@ -125,7 +125,7 @@ def utility(board: Board) -> Score:
     return 1 if game_winner == X else -1 if game_winner == O else 0
 
 
-def min_player(board: Board, alpha: Score) -> Score:
+def min_player(board: Board, alpha: Score, beta: Score) -> Score:
     if terminal(board):
         return utility(board)
 
@@ -135,7 +135,7 @@ def min_player(board: Board, alpha: Score) -> Score:
     # Minimize the score
     min_point = math.inf
     for action in possible_actions:
-        min_point = min(min_point, max_player(result(board, action), alpha))
+        min_point = min(min_point, max_player(result(board, action), alpha, beta))
         if min_point <= alpha:
             break  # Prune
         alpha = min(alpha, min_point)  # Update alpha
@@ -143,7 +143,7 @@ def min_player(board: Board, alpha: Score) -> Score:
     return min_point
 
 
-def max_player(board: Board, beta: Score) -> Score:
+def max_player(board: Board, alpha: Score, beta: Score) -> Score:
     if terminal(board):
         return utility(board)
 
@@ -153,7 +153,7 @@ def max_player(board: Board, beta: Score) -> Score:
     # Maximize the score
     max_point = -math.inf
     for action in possible_actions:
-        max_point = max(max_point, min_player(result(board, action), beta))
+        max_point = max(max_point, min_player(result(board, action), alpha, beta))
         if max_point >= beta:
             break  # Prune
         beta = max(beta, max_point)  # Update beta
@@ -180,16 +180,16 @@ def minimax(board: Board) -> Union[BoardAction, None]:
         optimal_decision: (Score, BoardAction) = (-math.inf, None)
 
         for action in possible_actions:
-            action_score = min_player(result(board, action), optimal_decision[0])
+            action_score = min_player(result(board, action), optimal_decision[0], math.inf)
             optimal_decision = max(optimal_decision, (action_score, action), key=lambda item: item[0])
 
         return optimal_decision[1]
 
     # AI is O
-    optimal_decision = (math.inf, None)
+    optimal_decision: (Score, BoardAction) = (math.inf, None)
 
     for action in possible_actions:
-        action_score: Score = max_player(result(board, action), optimal_decision[0])
+        action_score: Score = max_player(result(board, action), -math.inf, optimal_decision[0])
         optimal_decision = min(optimal_decision, (action_score, action), key=lambda item: item[0])
 
     return optimal_decision[1]
