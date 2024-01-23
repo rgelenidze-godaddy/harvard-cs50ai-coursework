@@ -135,7 +135,7 @@ def min_player(board: Board, alpha: Score) -> Score:
     # Minimize the score
     min_point = math.inf
     for action in possible_actions:
-        min_point = min(min_point, max_player(result(board, action), min_point))
+        min_point = min(min_point, max_player(result(board, action), alpha))
         if min_point <= alpha:
             break  # Prune
         alpha = min(alpha, min_point)  # Update alpha
@@ -153,7 +153,7 @@ def max_player(board: Board, beta: Score) -> Score:
     # Maximize the score
     max_point = -math.inf
     for action in possible_actions:
-        max_point = max(max_point, min_player(result(board, action), max_point))
+        max_point = max(max_point, min_player(result(board, action), beta))
         if max_point >= beta:
             break  # Prune
         beta = max(beta, max_point)  # Update beta
